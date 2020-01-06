@@ -7,6 +7,8 @@ cache: pip
 python:
   - "3.6" # rhel 7/epel, ubuntu 16.04 and 18.04, alpine 3.7-3.9
   - "3.7" # alpine 3.10
+  - "3.8" # alpine 3.11
+  
 
 install:
   - sudo apt-get install libcmph0 libcmph-dev
