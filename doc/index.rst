@@ -142,8 +142,15 @@ See Also
 --------
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
+   structure
+   pythonapi
+   cnf
    query
+   capi
+
 
 .. _conjunctive normal form: http://en.wikipedia.org/wiki/Conjunctive_normal_form
 .. _immutable: http://en.wikipedia.org/wiki/Immutable_object
