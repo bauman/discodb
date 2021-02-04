@@ -145,6 +145,7 @@ See Also
    :maxdepth: 2
    :caption: Contents:
 
+   index
    structure
    pythonapi
    cnf

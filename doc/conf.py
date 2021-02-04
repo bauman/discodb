@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'DiscoDB'
-copyright = '2008-2012, Nokia Corporation and the Disco Project'
+copyright = '2008-2012, Nokia Corporation and the Disco Project | 2014-2021, Bauman with commits from goller'
 
 if on_rtd:
     MOCK_MODULES = ['discodb._discodb']
