@@ -31,7 +31,7 @@ jobs:
       - name: build release library
         run: |
           mkdir ../cmake-release && cd ../cmake-release;
-          make -DCMAKE_BUILD_TYPE=Release ..;
+          cmake -DCMAKE_BUILD_TYPE=Release ..;
           make;
           make test;
           sudo install libdiscodb.so /usr/lib/libdiscodb.so ;
