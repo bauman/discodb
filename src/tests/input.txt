@@ -4,3 +4,4 @@ key value
 key3 value3
 key2 value22
 key2 something-else
+key9 this-is-a-long-string-over-24-characters-triggering-longhash-function-loop

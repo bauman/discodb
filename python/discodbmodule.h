@@ -11,6 +11,7 @@ typedef struct {
     PyObject_HEAD
     PyTypeObject    *ddb_type;
     struct ddb_cons *ddb_cons;
+    uint8_t          finalized;
 } DiscoDBConstructor;
 
 typedef struct {
@@ -39,7 +40,7 @@ static PyObject * DiscoDB_unique_values(DiscoDB *);
 static PyObject * DiscoDB_query        (DiscoDB *, PyObject *, PyObject *);
 
 /* Serialization / Deserialization Informal Protocol */
-
+static PyObject * DiscoDB_dump_dict   (DiscoDB *);
 static PyObject * DiscoDB_dumps   (DiscoDB *);
 static PyObject * DiscoDB_dump    (DiscoDB *, PyObject *);
 static PyObject * DiscoDB_loads   (PyTypeObject *, PyObject *);
@@ -52,6 +53,7 @@ static PyTypeObject DiscoDBConstructorType;
 static PyObject * DiscoDBConstructor_new     (PyTypeObject *,       PyObject *, PyObject *);
 static void       DiscoDBConstructor_dealloc (DiscoDBConstructor *);
 static PyObject * DiscoDBConstructor_add     (DiscoDBConstructor *, PyObject *);
+static PyObject * DiscoDBConstructor_invert  (DiscoDBConstructor *, PyObject *);
 static PyObject * DiscoDBConstructor_merge   (DiscoDBConstructor *, PyObject *);
 static PyObject * DiscoDBConstructor_merge_with_explicit_value   (DiscoDBConstructor *, PyObject *);
 static PyObject * DiscoDBConstructor_finalize(DiscoDBConstructor *, PyObject *, PyObject *);

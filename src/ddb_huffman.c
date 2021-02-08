@@ -91,7 +91,7 @@ static void print_symbol(uint32_t symbol)
 
 static void print_codeword(const struct hnode *node)
 {
-    int j;
+    uint32_t j;
     for (j = 0; j < node->num_bits; j++)
         fprintf(stderr, "%d", (node->code & (1 << j) ? 1: 0));
 }

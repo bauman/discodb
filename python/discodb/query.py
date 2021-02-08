@@ -112,16 +112,18 @@ class Q(object):
         return quote(str(self)
                      .replace('&', '/')
                      .replace('|', ',')
-                     .replace(' ' ,''),
+                     .replace(' ', ''),
                      safe)
 
     @classmethod
     def urlscan(cls, string):
         from urllib import unquote
-        return cls.parse(unquote(string)\
-                         .strip().strip('/')\
-                         .replace('/', '&')\
-                         .replace(',', '|'))
+        return cls.parse(unquote(string)
+                         .strip()
+                         .strip('/')
+                         .replace('/', '&')
+                         .replace(',', '|')
+                         )
 
     @classmethod
     def parse(cls, string):
@@ -194,6 +196,7 @@ class Q(object):
             return Q((Clause((proposition, )), ))
         return Q((Clause((Literal(proposition), )), ))
 
+
 class Clause(object):
     """
     Contains a disjunction of literals.
@@ -245,6 +248,7 @@ class Clause(object):
     def resolve(self, discodb):
         return reduce(__or__, (l.resolve(discodb) for l in self.literals))
 
+
 class Literal(object):
     """
     A potential key in a discodb (or its negation).
@@ -290,6 +294,7 @@ class Literal(object):
     def resolve(self, discodb):
         return Q.wrap(self)
 
+
 class MetaLiteral(Literal):
     def __str__(self):
         return '%s+(%s)' % ('~' if self.negated else '', self.term.decode())
@@ -303,3 +308,4 @@ class MetaLiteral(Literal):
         q = self.term.resolve(discodb)
         clause = Clause(Literal(v) for v in discodb.query(q))
         return Q.wrap(~clause if self.negated else clause)
+

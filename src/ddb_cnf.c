@@ -103,7 +103,7 @@ static int intersect_clauses(struct ddb_cnf_cursor *cnf)
 
     cnf->isect_offset = 0;
     memcpy(cnf->isect, cnf->clauses[0].unionn, WINDOW_SIZE_BYTES);
-    int i;
+    uint32_t i;
     for (i = 1; i < cnf->num_clauses; i++){
         isect(cnf->isect, cnf->clauses[i].unionn, WINDOW_SIZE_BYTES);
 #ifdef DEBUG

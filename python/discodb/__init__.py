@@ -1,10 +1,52 @@
+"""
+DiscoDB python wrapper to libdiscodb's handling
+
+
+This module wraps the python c extension
+at discodb._discodb
+that does the heavy lifting for this module.
+
+discodb requires a system wide (or otherwise appropriately installed)
+    libcmph (licensed LGPL)
+
+
+"""
+
 import six
-from ._discodb import _DiscoDB, DiscoDBConstructor, DiscoDBError, DiscoDBIter, DiscoDBView
+try:
+    from ._discodb import _DiscoDB, DiscoDBConstructor, DiscoDBError, DiscoDBIter, DiscoDBView
+except ImportError as imp_err:
+    from sys import stderr
+    RED = '\033[0;31m'
+    NC = '\033[0m' # No Color
+    if "libcmph" in str(imp_err):
+        stderr.write("----------------------------------------------------\n"
+                     f"{RED}DiscoDB import Error{NC}:\n"
+                     f"       {RED}libcmph{NC} not found on system, \n"
+                     f"       please obtain system-wide libcmph\n"
+                     f"       to comply with LGPL License\n"
+                     "            apt-get install libcmph0\n"
+                     "            apk add libcmph\n"
+                     "            dnf/yum install cmph (third party)\n"
+                     "            brew install libcmph (third party)\n"
+                     "----------------------------------------------------\n")
+    elif "libdisco" in str(imp_err):
+        stderr.write("-----------------------------------------------------------\n"
+                     f"{RED}DiscoDB import Error{NC}:\n"
+                     f"       {RED}libdiscodb{NC} not found on system, \n"
+                     f"       please obtain system-wide libdiscodb and libcmph\n"
+                     f"       to comply with LGPL License\n"
+                     "-----------------------------------------------------------\n")
+    raise
+
+
 from .query import Q
 from .tools import kvgroup
 
+
 def discodb_unpickle(string):
     return DiscoDB.loads(string)
+
 
 class DiscoDBInquiry(object):
     def __init__(self, iterfunc):
@@ -25,6 +67,7 @@ class DiscoDBInquiry(object):
 
     def __format__(self, format_spec='%s.3'):
         format_str, precision = format_spec.rsplit('.', 1)
+
         def firstN(N):
             for n, item in enumerate(self):
                 if n == N:
@@ -36,9 +79,11 @@ class DiscoDBInquiry(object):
     def __str__(self):
         return '%s([%s])' % (self.__class__.__name__, self.__format__())
 
+
 class DiscoDBLazyInquiry(DiscoDBInquiry):
     def __len__(self):
         return iter(self).count()
+
 
 class DiscoDBItemInquiry(DiscoDBLazyInquiry):
     def __len__(self):
@@ -46,6 +91,7 @@ class DiscoDBItemInquiry(DiscoDBLazyInquiry):
 
     def __format__(self, format_spec='(%s, %s).3'):
         return super(DiscoDBItemInquiry, self).__format__(format_spec)
+
 
 class DiscoDB(_DiscoDB):
     """DiscoDB(iter[, flags]) -> new DiscoDB from k, v[s] in iter."""
@@ -122,6 +168,7 @@ class DiscoDB(_DiscoDB):
 
     def make_view(self, data):
         return DiscoDBView(self, data)
+
 
 __all__ = ['DiscoDB',
            'DiscoDBConstructor',

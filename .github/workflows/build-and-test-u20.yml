@@ -1,0 +1,48 @@
+name: Bionic Build
+
+on:
+  push:
+    branches:
+    - $default-branch
+    - dan
+jobs:
+  build:
+    runs-on:
+      - disco-runner
+    steps:
+      - uses: actions/checkout@v2
+      - name: update system
+        run:
+          sudo apt-get update -y;
+          sudo apt-get upgrade -y;
+      - name: install c dependency
+        run:
+          sudo apt-get install -y wget libcmph-dev cmake make build-essential;
+          wget http://pkgs.bauman.space/discodb/sample.ddb -O /tmp/sample.ddb;
+          wget http://pkgs.bauman.space/discodb/animals.ddb -O /tmp/animals.ddb;
+          wget http://pkgs.bauman.space/discodb/cjk.ddb -O /tmp/cjk.ddb;
+          wget http://pkgs.bauman.space/discodb/myths.ddb -O /tmp/myths.ddb;
+      - name: build debug library
+        run: |
+          mkdir cmake-build && cd cmake-build;
+          cmake -DCMAKE_BUILD_TYPE=Debug ..;
+          make;
+          make test;
+      - name: build release library
+        run: |
+          mkdir ../cmake-release && cd ../cmake-release;
+          make -DCMAKE_BUILD_TYPE=Release ..;
+          make;
+          make test;
+          sudo install libdiscodb.so /usr/lib/libdiscodb.so ;
+          sudo install src/*.h /usr/include/. ;
+      - name: install python dependency
+        run: |
+          sudo apt-get install -y python3-dev python3-wheel python3-pip
+      - name: build python library
+        run: |
+          cd python;
+          python3 setup.py bdist_wheel ;
+          find . -name "*.so" | xargs -P1 -n1 ldd ;
+          pip3 install --force-reinstall dist/discodb*.whl ;
+          python3 util/test_merge.py ;

@@ -62,6 +62,8 @@ static PyMethodDef DiscoDB_methods[] = {
      "d.unique_values() -> an iterator over the unique values of d."},
     {"query", (PyCFunction)DiscoDB_query, METH_KEYWORDS | METH_VARARGS,
      "d.query(q) -> an iterator over the values of d whose keys satisfy q."},
+    {"dump_dict", (PyCFunction)DiscoDB_dump_dict, METH_NOARGS,
+     "d.dump_dict() -> expensive operation to dump ddb as native dict"},
     {"dumps", (PyCFunction)DiscoDB_dumps, METH_NOARGS,
      "d.dumps() -> a serialization of d."},
     {"dump", (PyCFunction)DiscoDB_dump, METH_O,
@@ -405,7 +407,7 @@ DiscoDB_dumps(DiscoDB *self)
 {
     uint64_t length;
     char *cbuffer = ddb_dumps(self->discodb, &length);
-#if PY_MAJOR_VERISION >= 3
+#if PY_MAJOR_VERSION >= 3
     PyObject *string = Py_BuildValue("y#", cbuffer, length);
 #else
     PyObject *string = Py_BuildValue("s#", cbuffer, length);
@@ -439,6 +441,43 @@ DiscoDB_dump(DiscoDB *self, PyObject *file)
         return NULL;
 
     Py_RETURN_NONE;
+}
+
+static PyObject *
+DiscoDB_dump_dict(DiscoDB *self)
+{
+    PyObject *outer = Py_BuildValue("{}");
+#if PY_MAJOR_VERSION >= 3
+    int errcode = 0;
+    const struct ddb_entry *kentry = NULL;
+    const struct ddb_entry *ventry = NULL;
+    struct ddb_cursor *key_cursor = NULL;
+    struct ddb_cursor *value_cursor = NULL;\
+    key_cursor = ddb_keys(self->discodb);
+    while ((kentry = ddb_next(key_cursor, &errcode))){
+        value_cursor = ddb_getitem(self->discodb, kentry);
+        PyObject *inner_list = Py_BuildValue("[]");
+        while ((ventry = ddb_next(value_cursor, &errcode))) {
+            PyObject *inner_val = Py_BuildValue("y#", ventry->data, ventry->length);
+            PyList_Append(inner_list, inner_val);
+        }
+        PyObject *inner_key = Py_BuildValue("y#", kentry->data, kentry->length);
+        PyDict_SetItem(outer, inner_key, inner_list);
+        if (value_cursor != NULL) {
+            ddb_free_cursor(value_cursor);
+            value_cursor = NULL;
+        }
+    }
+    if (key_cursor != NULL) {
+        ddb_free_cursor(key_cursor);
+    }
+    if (value_cursor != NULL){
+        ddb_free_cursor(value_cursor);
+    }
+    if (PyErr_Occurred())
+        return NULL;
+#endif /* PY_MAJOR_VERSION >= 3 */
+    return outer;
 }
 
 static PyObject *
@@ -592,6 +631,8 @@ init_discodb(void)
 static PyMethodDef DiscoDBConstructor_methods[] = {
     {"add", (PyCFunction)DiscoDBConstructor_add, METH_VARARGS,
      "c.add(k, v) -> add (k, v) to the DiscoDB that will be produced."},
+    {"invert", (PyCFunction)DiscoDBConstructor_invert, METH_VARARGS,
+            "c.invert(ddb) -> invert (ddb) keys values to values keys the DiscoDB ."},
     {"merge", (PyCFunction)DiscoDBConstructor_merge, METH_VARARGS,
      "c.merge(ddb) -> merge (ddb) keys and values into the DiscoDB ."},
     {"merge_with_explicit_value", (PyCFunction)DiscoDBConstructor_merge_with_explicit_value, METH_VARARGS,
@@ -692,8 +733,24 @@ DiscoDBConstructor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 static PyObject *
+DiscoDBConstructor_invert(DiscoDBConstructor *self, PyObject *item)
+{
+    if (self->finalized){
+        PyErr_SetString(DiscoDBError, "Constructor has already been finalized. ");
+        return NULL;
+    }
+    DiscoDB *ddb = NULL;
+    if (PyArg_ParseTuple(item, "O!", &DiscoDBType, &ddb))
+        ddb_cons_merge_inverted(self->ddb_cons, ddb->discodb, NULL);
+    Py_RETURN_NONE;
+}
+static PyObject *
 DiscoDBConstructor_merge(DiscoDBConstructor *self, PyObject *item)
 {
+    if (self->finalized){
+        PyErr_SetString(DiscoDBError, "Constructor has already been finalized merge. ");
+        return NULL;
+    }
     DiscoDB *ddb = NULL;
     if (PyArg_ParseTuple(item, "O!", &DiscoDBType, &ddb))
         ddb_cons_merge(self->ddb_cons, ddb->discodb, NULL);
@@ -702,6 +759,10 @@ DiscoDBConstructor_merge(DiscoDBConstructor *self, PyObject *item)
 static PyObject *
 DiscoDBConstructor_merge_with_explicit_value(DiscoDBConstructor *self, PyObject *item)
 {
+    if (self->finalized){
+        PyErr_SetString(DiscoDBError, "Constructor has already been finalized. ");
+        return NULL;
+    }
     DiscoDB *ddb = NULL;
     struct ddb_entry explicit_ventry;
 #if PY_MAJOR_VERSION >= 3
@@ -709,7 +770,9 @@ DiscoDBConstructor_merge_with_explicit_value(DiscoDBConstructor *self, PyObject 
 #else
     if (PyArg_ParseTuple(item, "O!s#", &DiscoDBType, &ddb, &explicit_ventry.data, &explicit_ventry.length))
 #endif
+    {
         ddb_cons_merge(self->ddb_cons, ddb->discodb, &explicit_ventry);
+    }
     Py_RETURN_NONE;
 }
 static void
@@ -723,6 +786,12 @@ DiscoDBConstructor_dealloc(DiscoDBConstructor *self)
 static PyObject *
 DiscoDBConstructor_add(DiscoDBConstructor *self, PyObject *item)
 {
+    if (self->finalized){
+        PyErr_SetString(DiscoDBError, "Constructor has already been finalized. "
+                                      "Create new constructor, "
+                                      "finalize, and merge as needed");
+        return NULL;
+    }
     PyObject
         *itervalues = NULL,
         *value = NULL,
@@ -736,7 +805,9 @@ DiscoDBConstructor_add(DiscoDBConstructor *self, PyObject *item)
 #else
     if (!PyArg_ParseTuple(item, "s#O", &kentry.data, &kentry.length, &values))
 #endif
+    {
       goto Done;
+    }
 
     Py_XINCREF(values);
 
@@ -792,6 +863,10 @@ DiscoDBConstructor_add(DiscoDBConstructor *self, PyObject *item)
 static PyObject *
 DiscoDBConstructor_finalize(DiscoDBConstructor *self, PyObject *args, PyObject *kwds)
 {
+    if (self->finalized){
+        PyErr_SetString(DiscoDBError, "Constructor has already been finalized.");
+        return NULL;
+    }
     DiscoDB *discodb = (DiscoDB *)DiscoDBType.tp_alloc(self->ddb_type, 0);
     uint64_t n,
       flags = 0,
@@ -834,6 +909,7 @@ DiscoDBConstructor_finalize(DiscoDBConstructor *self, PyObject *args, PyObject *
         Py_CLEAR(discodb);
         return NULL;
     }
+    self->finalized = 1;
     return (PyObject *)discodb;
 }
 

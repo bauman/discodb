@@ -27,28 +27,6 @@ static void print_info(struct ddb *db)
     printf("Hashed?                  %s\n", boolstr(feat[DDB_IS_HASHED]));
     printf("Multiset?                %s\n", boolstr(feat[DDB_IS_MULTISET]));
 }
-static struct ddb *open_discodb(const char *file)
-{
-    struct ddb *db;
-    int fd;
-
-    if (!(db = ddb_new())){
-        fprintf(stderr, "Couldn't initialize discodb: Out of memory\n");
-        exit(1);
-    }
-    if ((fd = open(file, O_RDONLY)) == -1){
-        fprintf(stderr, "Couldn't open discodb %s\n", file);
-        exit(1);
-    }
-    if (ddb_load(db, fd)){
-        const char *err;
-        ddb_error(db, &err);
-        fprintf(stderr, "Invalid discodb in %s: %s\n", file, err);
-        exit(1);
-    }
-    return db;
-}
-
 static void print_cursor(struct ddb *db, struct ddb_cursor *cur, struct ddb_entry *es)
 {
     if (!cur){
@@ -74,52 +52,35 @@ static void print_cursor(struct ddb *db, struct ddb_cursor *cur, struct ddb_entr
     }
     ddb_free_cursor(cur);
 }
-
-static void read_pairs(FILE *in, struct ddb_cons *db)
+static struct ddb *open_discodb(const char *file)
 {
-    char key[MAX_KV_SIZE];
-    char val[MAX_KV_SIZE];
-    uint32_t lc = 0;
+    struct ddb *db;
+    int fd;
 
-    while(fscanf(in, "%s %s\n", key, val) == 2){
-        struct ddb_entry key_e = {.data = key, .length = strlen(key)};
-        struct ddb_entry val_e = {.data = val, .length = strlen(val)};
-        if (ddb_cons_add(db, &key_e, &val_e)){
-            fprintf(stderr, "Adding '%s':'%s' failed\n", key, val);
-            exit(1);
-        }
-        ++lc;
+    if (!(db = ddb_new())){
+        fprintf(stderr, "Couldn't initialize discodb: Out of memory\n");
+        exit(1);
     }
-    fclose(in);
-    fprintf(stderr, "%u key-value pairs read.\n", lc);
-}
-
-static void read_keys(FILE *in, struct ddb_cons *db)
-{
-    char key[MAX_KV_SIZE];
-    uint32_t lc = 0;
-
-    while(fscanf(in, "%s\n", key) == 1){
-        struct ddb_entry key_e = {.data = key, .length = strlen(key)};
-        if (ddb_cons_add(db, &key_e, NULL)){
-            fprintf(stderr, "Adding '%s' failed\n", key);
-            exit(1);
-        }
-        ++lc;
+    if ((fd = open(file, O_RDONLY)) == -1){
+        fprintf(stderr, "Couldn't open discodb %s\n", file);
+        exit(1);
     }
-    fclose(in);
-    fprintf(stderr, "%u keys read.\n", lc);
+    if (ddb_load(db, fd)){
+        const char *err;
+        ddb_error(db, &err);
+        fprintf(stderr, "Invalid discodb in %s: %s\n", file, err);
+        exit(1);
+    }
+    return db;
 }
 
 int main(int argc, char **argv)
 {
     if (argc < 2){
-        fprintf(stderr, "Usage:\n");
-        fprintf(stderr, "create_discodb discodb.out input.txt\n");
-        fprintf(stderr, "where input.txt contain a key-value pair on each line, devided by space.\n");
+        fprintf(stderr, "%s", "Usage:\n");
+        fprintf(stderr, "%s %s", argv[0], "disco_merged.ddb disco_input1.ddb [ disco_input2.ddb, ... ]\n");
         exit(1);
     }
-
     FILE *in;
     FILE *out;
     uint64_t size;
@@ -127,7 +88,7 @@ int main(int argc, char **argv)
     struct ddb_cons *db = ddb_cons_new();
     uint64_t flags = 0;
     char * ddbfile = argv[1];
-    char * kvfile  = argv[2];
+    uint64_t ddb_i = 2;  // arg2 starts input files
     flags |= getenv("DONT_COMPRESS") ? DDB_OPT_DISABLE_COMPRESSION: 0;
     flags |= getenv("UNIQUE_ITEMS") ? DDB_OPT_UNIQUE_ITEMS: 0;
     flags |= DDB_OPT_UNIQUE_ITEMS;
@@ -137,14 +98,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if (!(in = fopen(kvfile, "r"))){
-        fprintf(stderr, "Couldn't open %s\n", kvfile);
-        exit(1);
+    for (ddb_i; ddb_i < argc; ddb_i++){
+        struct ddb * ddb_i_p = open_discodb(argv[ddb_i]);
+        ddb_cons_merge(db, ddb_i_p, NULL);
+        ddb_free(ddb_i_p);
     }
-    if (getenv("KEYS_ONLY"))
-        read_keys(in, db);
-    else
-        read_pairs(in, db);
 
     fprintf(stderr, "Packing the index..\n");
 
@@ -152,6 +110,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Packing the index failed\n");
         exit(1);
     }
+
     struct ddb *sddb = ddb_new();
     ddb_loads(sddb, data, size);
     struct ddb_entry ee;
@@ -159,7 +118,6 @@ int main(int argc, char **argv)
     ee.length = strlen(ee.data);
     print_cursor(sddb, ddb_getitem(sddb, &ee), &ee);
     ddb_free(sddb);
-
     ddb_cons_free(db);
 
     if (!(out = fopen(ddbfile, "w"))){
@@ -174,7 +132,6 @@ int main(int argc, char **argv)
     fclose(out);
     free(data);
     fprintf(stderr, "Ok! Index written to %s\n", ddbfile);
-
 
     return 0;
 }

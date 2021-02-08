@@ -64,6 +64,9 @@ void ddb_cons_free(struct ddb_cons *cons);
 int ddb_cons_merge(struct ddb_cons *outdb,
                    struct ddb      *indb,
                    const struct ddb_entry *explicit_value);
+int ddb_cons_merge_inverted(struct ddb_cons *outdb,
+                            struct ddb      *indb,
+                            const struct ddb_entry *explicit_value);
 int ddb_cons_add(struct ddb_cons *db,
             const struct ddb_entry *key,
             const struct ddb_entry *value);
