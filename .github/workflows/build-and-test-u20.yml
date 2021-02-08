@@ -15,7 +15,6 @@ jobs:
         run:
           sudo apt-get update -y;
           sudo apt-get upgrade -y;
-          rm -rf cmake-build cmake-release;
       - name: install c dependency
         run:
           sudo apt-get install -y wget libcmph-dev cmake make build-essential;
@@ -25,12 +24,14 @@ jobs:
           wget http://pkgs.bauman.space/discodb/myths.ddb -O /tmp/myths.ddb;
       - name: build debug library
         run: |
+          rm -rf cmake-build;
           mkdir cmake-build && cd cmake-build;
           cmake -DCMAKE_BUILD_TYPE=Debug ..;
           make;
           make test;
       - name: build release library
         run: |
+          rm -rf cmake-release;
           mkdir ../cmake-release && cd ../cmake-release;
           cmake -DCMAKE_BUILD_TYPE=Release ..;
           make;
