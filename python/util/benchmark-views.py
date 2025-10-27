@@ -1,5 +1,5 @@
 from discodb import DiscoDB
-from itertools import permutations, islice, imap, izip_longest
+from itertools import permutations, islice, zip_longest
 from time import time
 from random import sample
 from csv import DictWriter
@@ -9,8 +9,8 @@ WORD_LEN = 64
 
 def items():
     chars = map(chr, range(1, WORD_LEN + 1))
-    v = imap(lambda x: ''.join(x), permutations(chars))
-    return izip_longest([], islice(v, NUM_VALUES), fillvalue='a')
+    v = map(lambda x: ''.join(x), permutations(chars))
+    return zip_longest([], islice(v, NUM_VALUES), fillvalue='a')
 
 def timed(f, n=10):
     def run():
@@ -29,7 +29,7 @@ def samples(db):
 def test(db):
     for v, s in samples(db):
         if list(db.query('a', view=v)) != [x for x in db['a'] if x in s]:
-            raise Exception("no match: %d" % i)
+            raise Exception("no match: %d" % s)
     print("all ok!")
 
 def bmark(db):

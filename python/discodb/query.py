@@ -38,7 +38,7 @@ True
 [('D', ['F']), ('E | D', ['F', 'G'])]
 """
 from operator import __and__, __or__
-from six.moves import reduce
+from functools import reduce
 from collections import OrderedDict
 
 

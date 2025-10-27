@@ -1,0 +1,33 @@
+name: C Build on macOS
+
+on:
+  push:
+    branches: [ py3, py3a ]
+  pull_request:
+    branches: [ py3, py3a ]
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup C/C++ build environment (optional, if specific tools are needed)
+        run: |
+          brew install cmake libcmph
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Configure and Build
+        run: |
+          mkdir cmake-build
+          cd cmake-build
+          cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/usr -DCMAKE_BUILD_TYPE=Release .. 
+          cmake --build .
+          cmake --install .
+          cd ..
+          python3 -m build

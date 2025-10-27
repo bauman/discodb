@@ -41,7 +41,6 @@ setup(name='discodb',
       description='An efficient, immutable, persistent mapping object.',
       author='Nokia Research Center',
       install_requires=[
-          'six',
       ],
       ext_modules=[discodb_module],
       packages=['discodb'])

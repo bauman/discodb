@@ -1,0 +1,2 @@
+# required to compile
+include python/discodbmodule.h

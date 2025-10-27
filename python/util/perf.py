@@ -2,7 +2,7 @@
 
 from discodb import DiscoDB, DiscoDBConstructor
 from random import choice
-from string import letters
+from string import ascii_letters as letters
 from timeit import timeit
 
 def test_leak():
@@ -35,9 +35,9 @@ def sum_all(d):
         sum(1 for v in d.query(k))
 
 def create_db(numvs, vsize, disable_compression):
-    from itertools import islice, izip, permutations, repeat
+    from itertools import islice, permutations, repeat
     pool = letters * (vsize / len(letters) + 1)
-    return DiscoDB(izip(letters, repeat([''.join(p)
+    return DiscoDB(zip(letters, repeat([''.join(p)
                                          for p in islice(permutations(pool, vsize), numvs)])),
                    disable_compression=disable_compression)
 
@@ -47,13 +47,13 @@ def time_db(numvs=10000, vsize=1024, number=100):
                       "import perf;"\
                       "d = perf.create_db(%s, %s, %s)" % (numvs, vsize, disable_compression),
                       number=number)
-    print "%s values of size %s bytes" % (numvs, vsize)
+    print(f"{numvs} values of size {vsize} bytes")
     for disable_compression in (True, False):
-        print "with%s compression" % ('out' if disable_compression else ' (possible)')
-        print "\tlen\tsum\tsum / len"
+        print("with%s compression" % ('out' if disable_compression else ' (possible)'))
+        print("\tlen\tsum\tsum / len")
         len_t = timer('len_all', disable_compression)
         sum_t = timer('sum_all', disable_compression)
-        print "\t%.3f\t%.3f\t%.3f" % (len_t, sum_t, sum_t / len_t)
+        print("\t%.3f\t%.3f\t%.3f" % (len_t, sum_t, sum_t / len_t))
 
 if __name__ == '__main__':
     time_db()
