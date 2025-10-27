@@ -2,9 +2,9 @@ name: C Build on macOS
 
 on:
   push:
-    branches: [ py3, py3a ]
+    branches: [ py3, py3-update ]
   pull_request:
-    branches: [ py3, py3a ]
+    branches: [ py3, py3-update ]
 
 jobs:
   build:
