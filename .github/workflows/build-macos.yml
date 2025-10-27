@@ -8,14 +8,18 @@ on:
 
 jobs:
   build:
-    runs-on: macOS-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest] # Specify macOS as the operating system
+        python-version: ['3.9', '3.10', '3.11', '3.12'] # Define Python versions to test
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup C/C++ build environment (optional, if specific tools are needed)
         run: |
-          brew install cmake libcmph wget
+          brew reinstall cmake libcmph wget
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
