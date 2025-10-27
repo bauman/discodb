@@ -1,4 +1,4 @@
-name: C Build on macOS
+name: C Build on Ubuntu
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
       - name: Setup C/C++ build environment (optional, if specific tools are needed)
         run: |
           sudo apt-get update # Update package lists
-          sudo apt-get install build-essential cmake wget -y 
+          sudo apt-get install build-essential cmake wget libcmph-dev -y 
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
