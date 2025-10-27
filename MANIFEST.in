@@ -1,2 +1,3 @@
 # required to compile
 include python/discodbmodule.h
+include src/*.h
