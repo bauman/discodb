@@ -59,7 +59,7 @@ class DiscoDBInquiry(object):
 
     def __nonzero__(self):
         try:
-            iter(self).next()
+            next(iter(self))
         except StopIteration:
             return False
         return True
@@ -161,7 +161,7 @@ class DiscoDB(_DiscoDB):
     def peek(self, key, default=None):
         """first element of self[key] or else default."""
         try:
-            return iter(self.get(key, [])).next()
+            return next(iter(self.get(key, [])))
         except StopIteration:
             return default
 

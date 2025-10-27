@@ -1,0 +1,56 @@
+name: C Build on macOS
+
+on:
+  push:
+    branches: [ py3, py3-update ]
+  pull_request:
+    branches: [ py3, py3-update ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest] # Specify macOS as the operating system
+        python-version: ['3.9', '3.10', '3.11', '3.12'] # Define Python versions to test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup C/C++ build environment (optional, if specific tools are needed)
+        run: |
+          sudo apt-get update # Update package lists
+          sudo apt-get install build-essential cmake wget -y 
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Collect Test Files
+        run: |
+          wget http://pkgs.bauman.space/discodb/sample.ddb -O /tmp/sample.ddb;
+          wget http://pkgs.bauman.space/discodb/animals.ddb -O /tmp/animals.ddb;
+          wget http://pkgs.bauman.space/discodb/cjk.ddb -O /tmp/cjk.ddb;
+          wget http://pkgs.bauman.space/discodb/myths.ddb -O /tmp/myths.ddb;
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build wheel
+
+      - name: Configure and Build
+        run: |
+          mkdir cmake-build
+          cd cmake-build
+          cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/usr -DCMAKE_BUILD_TYPE=Release .. 
+          cmake --build .
+          cmake --install .
+          cd ..
+          python3 -m build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-file-${{ matrix.python-version }}
+          path: dist/*.whl
