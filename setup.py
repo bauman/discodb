@@ -13,7 +13,6 @@ setup_args = dict(
             'discodb._discodb',
             sources=['python/discodbmodule.c'] + glob.glob("src/*.c"),
             libraries=["cmph"],
-            headers=["python/discodbmodule.h"],
             library_dirs=[],
             include_dirs=[
                 Path(__file__).parent / "src",
