@@ -21,10 +21,10 @@ jobs:
         run: |
           brew reinstall cmake libcmph wget
 
-      - name: Set up Python 3.11
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Collect Test Files
         run: |
@@ -51,5 +51,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wheel-file
+          name: wheel-file-${}
           path: dist/*.whl
