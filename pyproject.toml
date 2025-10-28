@@ -21,7 +21,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel.linux]
 # This command runs for the manylinux containers (based on CentOS).
-before-all = "dnf install -y check && rpm -ivh https://mirror.team-cymru.com/remi/enterprise/remi-release-8.rpm && dnf install -y cmph-devel cmph"
+before-all = "dnf install -y check && rpm -ivh https://mirror.team-cymru.com/remi/enterprise/remi-release-8.rpm && dnf update -y && dnf install --enablerepo=remi -y cmph-devel cmph"
 archs = ["x86_64", "aarch64"]
 
 
