@@ -51,7 +51,7 @@ jobs:
           python3 -m pip install dist/*.whl
           cd python/util
           python3 test.py
-          pyteest test_merge.py
+          pytest test_merge.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
