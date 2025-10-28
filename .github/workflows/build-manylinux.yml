@@ -1,0 +1,31 @@
+name: Build and Test Wheels
+
+on:
+  push:
+    branches: [ py3 ]
+  pull_request:
+    branches: [ py3 ]
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_ARCHS_LINUX: "x86_64 aarch64" # or specify e.g. "x86_64 aarch64"
+          CIBW_SKIP: "cp36-manylinux_x86_64" # Example: skip specific builds
+          # Add other cibuildwheel environment variables as needed
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: wheelhouse/*.whl
