@@ -2,7 +2,7 @@ name: Build Wheels
 
 on:
   push:
-    branches: [ py3 ]
+    branches: [ py3, py3-updates ]
   pull_request:
     branches: [ py3 ]
 
