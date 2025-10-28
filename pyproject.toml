@@ -26,4 +26,5 @@ before-all = "dnf install -y check && rpm -ivh https://rpms.remirepo.net/enterpr
 [[tool.cibuildwheel.overrides]]
 select = "*-musllinux*"
 # This command runs for the musllinux containers (based on Alpine Linux).
-before-all = "apk add libcmph-dev"
+before-all = "apk update && apk add libcmph cmph-dev"
+
