@@ -21,7 +21,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.16.2  # pinned authorized, do not change version without updating project settings
         env:
           CIBW_ARCHS_LINUX: "x86_64 aarch64" # or specify e.g. "x86_64 aarch64"
-          CIBW_SKIP: "cp36-manylinux_x86_64" # Example: skip specific builds
+          CIBW_SKIP: "*-win*" # Example: skip specific builds
           # Add other cibuildwheel environment variables as needed
 
       - name: Upload wheels
