@@ -1,6 +1,6 @@
 [project]
 name = "discodb"
-version = "0.9.3"
+version = "0.9.4"
 description = "Add your description here"
 requires-python = ">=3.9"
 dependencies = []
