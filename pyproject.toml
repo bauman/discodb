@@ -34,4 +34,4 @@ archs = ["x86_64", "universal2", "arm64"]
 select = "*-musllinux*"
 # This command runs for the musllinux containers (based on Alpine Linux).
 before-all = "apk update && apk add libcmph cmph-dev"
-archs = []
+archs = ["x86_64"]
