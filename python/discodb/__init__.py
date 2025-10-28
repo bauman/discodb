@@ -12,7 +12,6 @@ discodb requires a system wide (or otherwise appropriately installed)
 
 """
 
-import six
 try:
     from ._discodb import _DiscoDB, DiscoDBConstructor, DiscoDBError, DiscoDBIter, DiscoDBView
 except ImportError as imp_err:
@@ -60,7 +59,7 @@ class DiscoDBInquiry(object):
 
     def __nonzero__(self):
         try:
-            iter(self).next()
+            next(iter(self))
         except StopIteration:
             return False
         return True
@@ -138,7 +137,7 @@ class DiscoDB(_DiscoDB):
 
         See :mod:`discodb.query` for more information.
         """
-        if isinstance(query, six.string_types):
+        if isinstance(query, str):
             query = Q.parse(query)
         return DiscoDBItemInquiry(lambda: query.metaquery(self))
 
@@ -149,7 +148,7 @@ class DiscoDB(_DiscoDB):
         The query can be either a :class:`Q` object, or text.
         If text, it is transformed into a :class:`Q` via :meth:`Q.parse`.
         """
-        if isinstance(query, six.string_types):
+        if isinstance(query, str):
             query = Q.parse(query)
         if view is None:
             l = lambda: super(DiscoDB, self).query(query)
@@ -162,7 +161,7 @@ class DiscoDB(_DiscoDB):
     def peek(self, key, default=None):
         """first element of self[key] or else default."""
         try:
-            return iter(self.get(key, [])).next()
+            return next(iter(self.get(key, [])))
         except StopIteration:
             return default
 

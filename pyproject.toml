@@ -1,0 +1,16 @@
+[project]
+name = "discodb"
+version = "0.9.4"
+description = "Add your description here"
+requires-python = ">=3.9"
+dependencies = []
+
+
+[tool.setuptools.packages.find]
+where = ["python", "src"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+

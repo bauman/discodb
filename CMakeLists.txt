@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.23)
 project(libdiscodb)
 
 # unclear whether SuperFastHash in ddb_hash.h is fair use within LGPL
@@ -15,23 +15,36 @@ INCLUDE (CheckLibraryExists)
 option(lgpl-is-ok "use SuperFastHash rather than CityHash" OFF)
 
 
-CHECK_INCLUDE_FILES(cmph.h HAVE_CMPH_H)
-if(NOT HAVE_CMPH_H)
-    message(SEND_ERROR "CMPH header is required, stopping")
-    return()
-endif()
-CHECK_LIBRARY_EXISTS(cmph cmph_config_new "" HAVE_CMPH_LIB)
-if(NOT HAVE_CMPH_LIB)
-    message(SEND_ERROR "cmph library is required, stopping")
-    return()
-endif()
+if (APPLE)
+    set(HOMEBREW_PREFIX "/opt/homebrew"
+            CACHE PATH "Path to Homebrew installation")
+    set(CMAKE_PREFIX_PATH
+            "${HOMEBREW_PREFIX}")
+
+    INCLUDE_DIRECTORIES(${CMAKE_PREFIX_PATH}/include/  src/ )
+    LINK_DIRECTORIES(${HOMEBREW_PREFIX}/lib)
+else()
+    INCLUDE_DIRECTORIES(/usr/include/  src/ )
+    LINK_DIRECTORIES(/usr/lib64/)
+
+    CHECK_INCLUDE_FILES(cmph.h HAVE_CMPH_H)
+    if(NOT HAVE_CMPH_H)
+        message(SEND_ERROR "CMPH header is required, stopping")
+        return()
+    endif()
+    CHECK_LIBRARY_EXISTS(cmph cmph_config_new "" HAVE_CMPH_LIB)
+    if(NOT HAVE_CMPH_LIB)
+        message(SEND_ERROR "cmph library is required, stopping")
+        return()
+    endif()
+endif ()
+
 if(lgpl-is-ok)
     message("-- requested SuperFastHash with -D lgpl-is-ok, will build with SuperFastHash rather than CityHash")
     add_definitions(-DLGPL_IS_OK)
 endif()
 
-INCLUDE_DIRECTORIES(/usr/include/  src/ )
-LINK_DIRECTORIES(/usr/lib64/)
+
 set(SOURCE_FILES    src/ddb_delta.c
                     src/ddb_deltalist.c
                     src/ddb_membuffer.c

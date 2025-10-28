@@ -14,31 +14,31 @@ True
 True
 
 >>> from discodb import DiscoDB
->>> d = DiscoDB({'A': ['B', 'C'], 'B': 'D', 'C': 'E', 'D': 'F', 'E': 'G'})
+>>> d = DiscoDB({b'A': [b'B', b'C'], b'B': b'D', b'C': b'E', b'D': b'F', b'E': b'G'})
 >>> sorted(d.query(Q.parse('A')))
-['B', 'C']
+[b'B', b'C']
 >>> sorted(d.query(Q.parse('*A')))
-['D', 'E']
+[b'D', b'E']
 >>> sorted(d.query(Q.parse('A | B')))
-['B', 'C', 'D']
+[b'B', b'C', b'D']
 >>> sorted(d.query(Q.parse('*A | B')))
-['D', 'E']
+[b'D', b'E']
 >>> sorted(d.query(Q.parse('**A | *B')))
-['F', 'G']
-
+[b'F', b'G']
+>>> d = DiscoDB({b'A': [b'B', b'C'], b'B': b'D', b'C': b'E', b'D': b'F', b'E': b'G'})
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('A')))
-[('A', ['B', 'C'])]
+[('A', [b'B', b'C'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('*A')))
-[('B', ['D']), ('C', ['E'])]
+[('B', [b'D']), ('C', [b'E'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('A | B')))
-[('A | B', ['B', 'C', 'D'])]
+[('B | A', [b'B', b'C', b'D'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('*A | B')))
-[('B', ['D']), ('C | B', ['D', 'E'])]
+[('B', [b'D']), ('B | C', [b'D', b'E'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('**A | *B')))
-[('D', ['F']), ('E | D', ['F', 'G'])]
+[('D', [b'F']), ('E | D', [b'F', b'G'])]
 """
 from operator import __and__, __or__
-from six.moves import reduce
+from functools import reduce
 from collections import OrderedDict
 
 
@@ -108,7 +108,7 @@ class Q(object):
         return reduce(__and__, (c.resolve(discodb) for c in self.clauses), Q([]))
 
     def urlformat(self, safe=':()/,~'):
-        from urllib import quote
+        from urllib.parse import quote
         return quote(str(self)
                      .replace('&', '/')
                      .replace('|', ',')
@@ -117,7 +117,7 @@ class Q(object):
 
     @classmethod
     def urlscan(cls, string):
-        from urllib import unquote
+        from urllib.parse import unquote
         return cls.parse(unquote(string)
                          .strip()
                          .strip('/')

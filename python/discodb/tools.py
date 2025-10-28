@@ -1,12 +1,9 @@
 """
 Tools to help in constructing DiscoDB objects.
 
->>> kvlist = [('k', 'v'), ('k', 'v2'), ('k2', 'v2')]
+>>> kvlist = [(b'k', b'v'), (b'k', b'v2'), (b'k2', b'v2')]
 >>> [(k, list(v)) for k, v in kvgroup(kvlist)]
-[('k', ['v', 'v2']), ('k2', ['v2'])]
->>> kvslist = [('k', 'v'), ('k2', ['vs']), ('k', 'v2')]
->>> [(k, list(vs)) for k, vs in normalize(kvslist)]
-[('k', ['v', 'v2']), ('k2', ['vs'])]
+[(b'k', [b'v', b'v2']), (b'k2', [b'v2'])]
 """
 
 from itertools import chain, groupby

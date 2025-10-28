@@ -43,7 +43,6 @@ int main(int argc, char **argv)
     struct ddb_cons *db = ddb_cons_new();
     uint64_t flags = 0;
     char * ddbfile = argv[1];
-    uint64_t ddb_i = 2;  // arg2 starts input files
     flags |= getenv("DONT_COMPRESS") ? DDB_OPT_DISABLE_COMPRESSION: 0;
     flags |= getenv("UNIQUE_ITEMS") ? DDB_OPT_UNIQUE_ITEMS: 0;
     flags |= DDB_OPT_UNIQUE_ITEMS;
@@ -52,8 +51,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "DB init failed\n");
         exit(1);
     }
-
-    for (ddb_i; ddb_i < argc; ddb_i++){
+    // start looping at 2 because argv[0] is program and argv[1] is output file
+    for (uint64_t ddb_i = 2; ddb_i < argc; ddb_i++){
         struct ddb * ddb_i_p = open_discodb(argv[ddb_i]);
         ddb_cons_merge_inverted(db, ddb_i_p, NULL);
         ddb_free(ddb_i_p);
