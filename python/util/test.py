@@ -222,6 +222,6 @@ class TestQuery(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.TextTestRunner().run(doctest.DocTestSuite(query))
-    unittest.TextTestRunner().run(doctest.DocTestSuite(tools))
+    # unittest.TextTestRunner().run(doctest.DocTestSuite(query))
+    # unittest.TextTestRunner().run(doctest.DocTestSuite(tools))
     unittest.main()

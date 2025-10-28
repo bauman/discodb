@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build wheel
+          python -m pip install build wheel pytest
 
       - name: Configure and Build
         run: |
@@ -51,6 +51,7 @@ jobs:
           python3 -m pip install dist/*.whl
           cd python/util
           python3 test.py
+          pyteest test_merge.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
