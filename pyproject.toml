@@ -18,3 +18,12 @@ where = ["python", "src"]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
+
+[tool.cibuildwheel.linux]
+# This command runs for the manylinux containers (based on CentOS).
+before-all = "yum install -y some-dependency"
+
+[[tool.cibuildwheel.overrides]]
+select = "*-musllinux*"
+# This command runs for the musllinux containers (based on Alpine Linux).
+before-all = "apk add some-dependency"
