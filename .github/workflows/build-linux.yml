@@ -56,5 +56,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wheel-file-${{ matrix.python-version }}
+          name: wheel-file-${{ matrix.python-version }}-${{ matrix.os }}
           path: dist/*.whl
