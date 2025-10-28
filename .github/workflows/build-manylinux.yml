@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.16.2  # pinned authorized, do not change version without updating project settings
         env:
           CIBW_ARCHS_LINUX: "x86_64 aarch64" # or specify e.g. "x86_64 aarch64"
           CIBW_SKIP: "cp36-manylinux_x86_64" # Example: skip specific builds
