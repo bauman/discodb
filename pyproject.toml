@@ -1,10 +1,15 @@
 [project]
-name = "discodb"
-version = "0.9.4"
-description = "Add your description here"
+name = "pydiscodb"  # another project is using DiscoDB name
+version = "0.9.5"
+description = "An efficient, immutable, persistent mapping object."
 requires-python = ">=3.9"
 dependencies = []
-
+authors = [
+    {name='Nokia Research Center'}
+]
+maintainers = [
+    {name="Dan Bauman"}
+]
 
 [tool.setuptools.packages.find]
 where = ["python", "src"]
@@ -12,5 +17,4 @@ where = ["python", "src"]
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
-
 
