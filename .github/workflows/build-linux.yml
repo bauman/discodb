@@ -53,15 +53,9 @@ jobs:
           python3 test.py
           pytest test_merge.py
 
-      - name: Build wheels
-        env:
-          CIBW_ARCHS_WINDOWS: ""
-          CIBW_ARCHS_LINUX: "x86_64 aarch64"
-          CIBW_ARCHS_MACOS: "x86_64 arm64"
-        run: cibuildwheel --output-dir wheelhouse
 
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels
-          path: wheelhouse/*.whl
+#      - name: Upload wheels
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: wheels
+#          path: wheelhouse/*.whl

@@ -22,7 +22,7 @@ build-backend = "setuptools.build_meta"
 [tool.cibuildwheel.linux]
 # This command runs for the manylinux containers (based on CentOS).
 before-all = "dnf install -y check && rpm -ivh https://rpms.remirepo.net/enterprise/8/remi/x86_64/cmph-2.0-2.el8.remi.x86_64.rpm && rpm -ivh http://rpms.remirepo.net/enterprise/8/remi/x86_64/cmph-devel-2.0-2.el8.remi.x86_64.rpm"
-archs = ["auto", "aarch64"]
+archs = ["x86_64", "aarch64"]
 
 
 [tool.cibuildwheel.macos]
@@ -34,4 +34,4 @@ archs = ["x86_64", "universal2", "arm64"]
 select = "*-musllinux*"
 # This command runs for the musllinux containers (based on Alpine Linux).
 before-all = "apk update && apk add libcmph cmph-dev"
-
+archs = []
