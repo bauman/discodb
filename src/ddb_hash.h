@@ -200,6 +200,11 @@ struct _uint128 {
 #define	bswap_32(x) OSSwapInt32(x)
 #define	bswap_64(x) OSSwapInt64(x)
 
+#elif defined(__linux__) && !defined(__GLIBC__)
+// probably Alpine Linux
+#include <endian.h>
+#define	bswap_32(x) __bswap32 (x)
+#define	bswap_64(x) __bswap64 (x)
 #else
 #include <endian.h>
 #define	bswap_32(x) __bswap_32 (x)
