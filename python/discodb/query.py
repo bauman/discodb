@@ -14,7 +14,7 @@ True
 True
 
 >>> from discodb import DiscoDB
->>> d = DiscoDB({'A': ['B', 'C'], 'B': 'D', 'C': 'E', 'D': 'F', 'E': 'G'})
+>>> d = DiscoDB({b'A': [b'B', b'C'], b'B': b'D', b'C': b'E', b'D': b'F', b'E': b'G'})
 >>> sorted(d.query(Q.parse('A')))
 ['B', 'C']
 >>> sorted(d.query(Q.parse('*A')))
@@ -25,7 +25,7 @@ True
 ['D', 'E']
 >>> sorted(d.query(Q.parse('**A | *B')))
 ['F', 'G']
-
+>>> d = DiscoDB({b'A': [b'B', b'C'], b'B': b'D', b'C': b'E', b'D': b'F', b'E': b'G'})
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('A')))
 [('A', ['B', 'C'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('*A')))
