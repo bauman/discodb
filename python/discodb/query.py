@@ -31,9 +31,9 @@ True
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('*A')))
 [('B', [b'D']), ('C', [b'E'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('A | B')))
-[('A | B', [b'B', b'C', b'D'])]
+[('B | A', [b'B', b'C', b'D'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('*A | B')))
-[('B', [b'D']), ('C | B', [b'D', b'E'])]
+[('B', [b'D']), ('B | C', [b'D', b'E'])]
 >>> sorted((str(k), sorted(vs)) for k, vs in d.metaquery(Q.parse('**A | *B')))
 [('D', [b'F']), ('E | D', [b'F', b'G'])]
 """
